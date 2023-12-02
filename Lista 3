@@ -1,0 +1,123 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct Produto {
+    int codigo;
+    char descricao[50];
+    int quantidade;
+    float valor;
+    struct Produto *prox;
+} Produto;
+
+Produto* inicializa() {
+    return NULL;
+}
+
+Produto* cadastra(Produto* estoque) {
+    Produto* novo = (Produto*) malloc(sizeof(Produto));
+    printf("Informe o codigo do produto: ");
+    scanf("%d", &novo->codigo);
+    printf("Informe a descricao do produto: ");
+    scanf(" %[^\n]", novo->descricao);
+    printf("Informe a quantidade do produto: ");
+    scanf("%d", &novo->quantidade);
+    printf("Informe o valor do produto: ");
+    scanf("%f", &novo->valor);
+    novo->prox = estoque;
+    return novo;
+}
+
+void relatorio(Produto* estoque) {
+    Produto* p;
+    for (p = estoque; p != NULL; p = p->prox) {
+        printf("Codigo: %d\n", p->codigo);
+        printf("Descricao: %s\n", p->descricao);
+        printf("Quantidade: %d\n", p->quantidade);
+        printf("Valor: %.2f\n", p->valor);
+        printf("-------------------\n");
+    }
+}
+
+Produto* consulta(Produto* estoque, int codigo) {
+    Produto* p;
+    for (p = estoque; p != NULL; p = p->prox) {
+        if (p->codigo == codigo) {
+            return p;
+        }
+    }
+    return NULL;
+}
+
+Produto* remove_produto(Produto* estoque, int codigo) {
+    Produto* ant = NULL;
+    Produto* p = estoque;
+
+    while (p != NULL && p->codigo != codigo) {
+        ant = p;
+        p = p->prox;
+    }
+
+    if (p == NULL) {
+        printf("Produto nao encontrado.\n");
+        return estoque;
+    }
+
+    if (ant == NULL) {
+        estoque = p->prox;
+    } else {
+        ant->prox = p->prox;
+    }
+    free(p);
+    return estoque;
+}
+
+int main() {
+    Produto* estoque = inicializa();
+    int opcao, codigo;
+    Produto* p;
+
+    do {
+        printf("1 - Cadastrar produto\n");
+        printf("2 - Consultar produto\n");
+        printf("3 - Gerar relatorio\n");
+        printf("4 - Remover produto\n");
+        printf("5 - Sair\n");
+        printf("Escolha uma opcao: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1:
+                estoque = cadastra(estoque);
+                break;
+            case 2:
+                printf("Informe o codigo do produto: ");
+                scanf("%d", &codigo);
+                p = consulta(estoque, codigo);
+                if (p != NULL) {
+                    printf("Codigo: %d\n", p->codigo);
+                    printf("Descricao: %s\n", p->descricao);
+                    printf("Quantidade: %d\n", p->quantidade);
+                    printf("Valor: %.2f\n", p->valor);
+                } else {
+                    printf("Produto nao encontrado.\n");
+                }
+                break;
+            case 3:
+                relatorio(estoque);
+                break;
+            case 4:
+                printf("Informe o codigo do produto: ");
+                scanf("%d", &codigo);
+                estoque = remove_produto(estoque, codigo);
+                break;
+            case 5:
+                printf("Saindo do programa...\n");
+                break;
+            default:
+                printf("Opcao invalida.\n");
+        }
+    } while (opcao != 5);
+
+    return 0;
+}
